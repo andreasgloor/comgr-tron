@@ -67,11 +67,5 @@ public class TronGame {
 			controller.animationTick();
 		});
 		Platform.get().run();
-		
-		
-		/*Vec3[] params = CAM_PARAMS[e.getKey() - GLFW.GLFW_KEY_1];
-			ICamera camera = getCamera(getCurrentView());
-			camera.setPosition(params[0]);
-			camera.setUp(params[1]);*/
 	}
 }

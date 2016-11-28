@@ -68,7 +68,6 @@ public class TronController extends DefaultController {
 		} else {
 			direction = direction.add(new Vec3(0.01, angle > 0 ? -0.01 : 0.01, 0));
 		}
-		System.out.println(direction);
 	}
 	
 	public void animationTick() {
