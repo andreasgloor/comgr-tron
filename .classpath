@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ether-core"/>
+	<classpathentry kind="src" path="resources"/>
+	<classpathentry kind="lib" path="C:/Users/Silvan/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-glfw/3.1.0/5f07fdd867a9785ec124828385fe45cf4d5671ec/lwjgl-glfw-3.1.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Silvan/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-glfw/3.1.0/5b3b88d2fd848de8581347d0d6bb90086e17fd26/lwjgl-glfw-3.1.0-natives-windows.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
