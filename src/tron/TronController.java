@@ -70,7 +70,7 @@ public class TronController extends DefaultController {
 		}
 	}
 	
-	public void animationTick() {
+	public void animationTick(double time, double interval) {
 		Mat4 tr = Mat4.multiply(scale,rotation);
 		position = position.add(direction);
 		falcon.forEach(mesh -> {

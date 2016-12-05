@@ -49,7 +49,14 @@ public class TronGame {
 		TronController controller = new TronController(falcon);
 		controller.run(time -> {
 			new DefaultView(controller, 0, 40, 1200, 460, IView.INTERACTIVE_VIEW, "TronGame");
-			//new DefaultView(controller, 0, 540, 1200, 460, new IView.Config(ViewType.INTERACTIVE_VIEW, 0, new IView.ViewFlag[0]), "TronGame");
+		});
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		controller.run(time -> {
+			new DefaultView(controller, 0, 540, 1200, 460, new IView.Config(ViewType.INTERACTIVE_VIEW, 0, new IView.ViewFlag[0]), "TronGame");
 	
 			IScene scene = new DefaultScene(controller);
 			controller.setScene(scene);
@@ -64,7 +71,7 @@ public class TronGame {
 			scene.add3DObjects(falcon);
 		});
 		controller.animate((time, interval) -> {
-			controller.animationTick();
+			controller.animationTick(time, interval);
 		});
 		Platform.get().run();
 	}
