@@ -32,6 +32,7 @@ public class TronGame {
 		Platform.get().init();
 		
 		final List<IMesh> falcon = new ArrayList<>();
+		final List<IMesh> building = new ArrayList<>();
 		try {
 			final URL obj = getClass().getResource("/models/WpnCaptainBlueFalcon.obj");
 			new ObjReader(obj, Options.CONVERT_TO_Z_UP).getMeshes().forEach(mesh -> falcon.add(mesh));
@@ -42,6 +43,8 @@ public class TronGame {
 			System.out.println("number of meshes after merging: " + merged.size());
 			scene.add3DObjects(merged);*/
 			
+			final URL objBuild = getClass().getResource("/models/building2.obj");
+			new ObjReader(objBuild, Options.CONVERT_TO_Z_UP).getMeshes().forEach(mesh -> building.add(mesh));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -61,13 +64,14 @@ public class TronGame {
 			IScene scene = new DefaultScene(controller);
 			controller.setScene(scene);
 			
-			scene.add3DObject(MeshUtilities.createGroundPlane(10f)); // -10 bis +10
+			//scene.add3DObject(MeshUtilities.createGroundPlane(10f)); // -10 bis +10
 			
 			scene.add3DObject(new DirectionalLight(new Vec3(-3, -3, 3), RGB.BLACK, RGB.WHITE));
 			scene.add3DObject(new DirectionalLight(new Vec3(-3, 3, 3), RGB.BLACK, RGB.WHITE));
 			scene.add3DObject(new DirectionalLight(new Vec3(3, -3, 3), RGB.BLACK, RGB.WHITE));
 			scene.add3DObject(new DirectionalLight(new Vec3(3, 3, 3), RGB.BLACK, RGB.WHITE));
 			
+			scene.add3DObjects(building);
 			scene.add3DObjects(falcon);
 		});
 		controller.animate((time, interval) -> {

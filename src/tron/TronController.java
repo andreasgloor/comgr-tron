@@ -80,6 +80,7 @@ public class TronController extends DefaultController {
 		
 		
 		ICamera cam = getCamera(getCurrentView());
+		if(cam == null) cam = getCamera(getViews().get(0));
 		if(fixCameraPos) {
 			cam.setPosition(new Vec3(0,0,10));
 		} else {
