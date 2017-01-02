@@ -92,6 +92,11 @@ public class TronGame {
 			
 			beam.forEach(mesh -> mesh.setTransform(Mat4.scale(10000, 1, 1)));
 			beam.forEach(mesh -> mesh.setPosition(new Vec3(3,3,0)));
+			beam.forEach(mesh -> mesh.getGeometry().modify((id, colors) -> {
+				for(int i = 0; i < colors.length; ++i) {
+					colors[i][3] = 0.2f;
+				}
+			}));
 			
 		});
 		controller.animate((time, interval) -> {
