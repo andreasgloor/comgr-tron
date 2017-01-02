@@ -33,12 +33,15 @@ public class TronGame {
 		Platform.get().init();
 		
 		final List<IMesh> falcon = new ArrayList<>();
+		final List<IMesh> falcon2 = new ArrayList<>();
 		final List<IMesh> building = new ArrayList<>();
 		final List<IMesh> elevator = new ArrayList<>();
 		
 		try {
 			final URL objFalcon = getClass().getResource("/models/WpnCaptainBlueFalcon.obj");
 			new ObjReader(objFalcon, Options.CONVERT_TO_Z_UP).getMeshes().forEach(mesh -> falcon.add(mesh));
+			new ObjReader(objFalcon, Options.CONVERT_TO_Z_UP).getMeshes().forEach(mesh -> falcon2.add(mesh));
+			
 			
 			final URL objBuilding = getClass().getResource("/models/building.obj");
 			new ObjReader(objBuilding, Options.CONVERT_TO_Z_UP).getMeshes().forEach(mesh -> building.add(mesh));
@@ -52,7 +55,7 @@ public class TronGame {
 		BoundingBox bbBuilding = getBoundingBoxOfObj(building);
         BoundingBox bbElevator = getBoundingBoxOfObj(elevator);
 		
-		TronController controller = new TronController(falcon, bbBuilding, bbElevator);
+		TronController controller = new TronController(falcon, falcon2, bbBuilding, bbElevator);
 		
 		controller.run(time -> {
 			new DefaultView(controller, 0, 40, 1200, 460, IView.INTERACTIVE_VIEW, "TronGame");
@@ -78,6 +81,7 @@ public class TronGame {
 			scene.add3DObjects(building);
 			scene.add3DObjects(elevator);
 			scene.add3DObjects(falcon);
+			scene.add3DObjects(falcon2);
 		});
 		controller.animate((time, interval) -> {
 		    if(controller.getCurrentView() != null)
