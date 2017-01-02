@@ -20,6 +20,7 @@ import ch.fhnw.util.color.RGB;
 import ch.fhnw.util.math.Mat4;
 import ch.fhnw.util.math.Vec3;
 import ch.fhnw.util.math.Vec4;
+import ch.fhnw.util.math.geometry.BoundingBox;
 
 public class TronGame {
 	private IMesh mesh;
@@ -33,23 +34,26 @@ public class TronGame {
 		
 		final List<IMesh> falcon = new ArrayList<>();
 		final List<IMesh> building = new ArrayList<>();
+		final List<IMesh> elevator = new ArrayList<>();
+		
 		try {
-			final URL obj = getClass().getResource("/models/WpnCaptainBlueFalcon.obj");
-			new ObjReader(obj, Options.CONVERT_TO_Z_UP).getMeshes().forEach(mesh -> falcon.add(mesh));
-			//falcon.forEach(m -> m.setTransform(Mat4.scale(0.005f)));
+			final URL objFalcon = getClass().getResource("/models/WpnCaptainBlueFalcon.obj");
+			new ObjReader(objFalcon, Options.CONVERT_TO_Z_UP).getMeshes().forEach(mesh -> falcon.add(mesh));
 			
-			/*System.out.println("number of meshes before merging: " + falcon.size());
-			final List<IMesh> merged = MeshUtilities.mergeMeshes(falcon);
-			System.out.println("number of meshes after merging: " + merged.size());
-			scene.add3DObjects(merged);*/
+			final URL objBuilding = getClass().getResource("/models/building.obj");
+			new ObjReader(objBuilding, Options.CONVERT_TO_Z_UP).getMeshes().forEach(mesh -> building.add(mesh));
 			
-			final URL objBuild = getClass().getResource("/models/building2.obj");
-			new ObjReader(objBuild, Options.CONVERT_TO_Z_UP).getMeshes().forEach(mesh -> building.add(mesh));
+			final URL objElevator = getClass().getResource("/models/elevator.obj");
+            new ObjReader(objElevator, Options.CONVERT_TO_Z_UP).getMeshes().forEach(mesh -> elevator.add(mesh));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		TronController controller = new TronController(falcon);
+		BoundingBox bbBuilding = getBoundingBoxOfObj(building);
+        BoundingBox bbElevator = getBoundingBoxOfObj(elevator);
+		
+		TronController controller = new TronController(falcon, bbBuilding, bbElevator);
+		
 		controller.run(time -> {
 			new DefaultView(controller, 0, 40, 1200, 460, IView.INTERACTIVE_VIEW, "TronGame");
 		});
@@ -66,17 +70,29 @@ public class TronGame {
 			
 			//scene.add3DObject(MeshUtilities.createGroundPlane(10f)); // -10 bis +10
 			
-			scene.add3DObject(new DirectionalLight(new Vec3(-3, -3, 3), RGB.BLACK, RGB.WHITE));
-			scene.add3DObject(new DirectionalLight(new Vec3(-3, 3, 3), RGB.BLACK, RGB.WHITE));
-			scene.add3DObject(new DirectionalLight(new Vec3(3, -3, 3), RGB.BLACK, RGB.WHITE));
-			scene.add3DObject(new DirectionalLight(new Vec3(3, 3, 3), RGB.BLACK, RGB.WHITE));
+			scene.add3DObject(new DirectionalLight(new Vec3(10, -10, 10), RGB.BLACK, RGB.WHITE));
+			scene.add3DObject(new DirectionalLight(new Vec3(-10, 10, 10), RGB.BLACK, RGB.WHITE));
+			scene.add3DObject(new DirectionalLight(new Vec3(10, -10, 10), RGB.BLACK, RGB.WHITE));
+			scene.add3DObject(new DirectionalLight(new Vec3(10, 10, 10), RGB.BLACK, RGB.WHITE));
 			
 			scene.add3DObjects(building);
+			scene.add3DObjects(elevator);
 			scene.add3DObjects(falcon);
 		});
 		controller.animate((time, interval) -> {
-			controller.animationTick(time, interval);
+		    if(controller.getCurrentView() != null)
+		        controller.animationTick(time, interval);
 		});
 		Platform.get().run();
+	}
+	
+	private BoundingBox getBoundingBoxOfObj(List<IMesh> obj) {
+	    BoundingBox bb = new BoundingBox();
+	    
+	    for (IMesh mesh : obj) {
+            bb.add(mesh.getBounds());
+        }
+	    
+	    return bb;
 	}
 }
