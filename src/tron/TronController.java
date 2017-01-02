@@ -24,15 +24,19 @@ public class TronController extends DefaultController {
 	};
 	
 	private Vec3 direction = new Vec3(0, -0.01, 0);
-	private Vec3 position = Vec3.ZERO;
+	private Vec3 position = new Vec3(0, -1, 0);
 	private final Mat4 scale = Mat4.scale(0.005f);
 	private Mat4 rotation = Mat4.rotate(0, Vec3.Z);
 	private final List<IMesh> falcon;
-	private final BoundingBox bbBuilding, bbElevator;	
+	private final BoundingBox bbBuilding, bbElevator;
+	private ICamera cam;
 	
 	private boolean fixCameraPos = false;
 	private boolean hasTurned = false;
 	private int ticksToIgnoreCamMove = 0;
+	
+	private enum ElevatorFace {FRONT, BACK, LEFT, RIGHT};
+	private ElevatorFace potentialElevatorFaceToHit = null;
 
 	public TronController(List<IMesh> falcon, BoundingBox bbBuilding, BoundingBox bbElevator) {
 		this.falcon = falcon;
@@ -67,13 +71,21 @@ public class TronController extends DefaultController {
 	private void turn(int angle) {
 		rotation = Mat4.multiply(rotation, Mat4.rotate(angle, Vec3.Z));
 		if(direction.y > 0) {
+		    potentialElevatorFaceToHit = angle < 0 ? ElevatorFace.LEFT : ElevatorFace.RIGHT;
 			direction = direction.add(new Vec3(angle > 0 ? -0.01 : 0.01, -0.01, 0));
+			//System.out.println("old direction: UP" + "| new direction: " + (angle < 0 ? "RIGHT" : "LEFT") + " | face to hit: " + potentialElevatorFaceToHit);
 		} else if(direction.y < 0) {
-			direction = direction.add(new Vec3(angle > 0 ? 0.01 : -0.01, 0.01, 0));
+		    potentialElevatorFaceToHit = angle < 0 ? ElevatorFace.RIGHT : ElevatorFace.LEFT;
+		    direction = direction.add(new Vec3(angle > 0 ? 0.01 : -0.01, 0.01, 0));
+		    //System.out.println("old direction: DOWN" + "| new direction: " + (angle < 0 ? "LEFT" : "RIGHT") + " | face to hit: " + potentialElevatorFaceToHit);
 		} else if(direction.x > 0) {
+		    potentialElevatorFaceToHit = angle < 0 ? ElevatorFace.BACK : ElevatorFace.FRONT;
 			direction = direction.add(new Vec3(-0.01, angle > 0 ? 0.01 : -0.01, 0));
+	        //System.out.println("old direction: RIGHT" + " | new direction: " + (angle < 0 ? "DOWN" : "UP") + " | face to hit: " + potentialElevatorFaceToHit);
 		} else {
+		    potentialElevatorFaceToHit = angle < 0 ? ElevatorFace.FRONT : ElevatorFace.BACK;
 			direction = direction.add(new Vec3(0.01, angle > 0 ? -0.01 : 0.01, 0));
+	        //System.out.println("old direction: LEFT" + "| new direction: " + (angle < 0 ? "UP" : "DOWN") + " | face to hit: " + potentialElevatorFaceToHit);
 		}
 	}
 	
@@ -84,8 +96,23 @@ public class TronController extends DefaultController {
         }
         
         boolean isOutOfMap = !bbBuilding.contains2D(bbFalcon);
-        boolean isInElevator = bbElevator.intersects2D(bbFalcon);
-        //System.out.println(isOutOfMap + " | " + isInElevator);
+        
+        if(bbElevator.intersects2D(bbFalcon)) {
+            if(potentialElevatorFaceToHit != null && potentialElevatorFaceToHit.equals(ElevatorFace.FRONT)) {
+                position = position.add(new Vec3(0, 2, 3.05));
+                falcon.forEach(mesh -> {
+                    mesh.setPosition(position);
+                });                
+                cam.setPosition(position.add(new Vec3(-direction.x*100, -direction.y*100, 0.5)));
+            }
+            else if(potentialElevatorFaceToHit != null && potentialElevatorFaceToHit.equals(ElevatorFace.BACK)) {
+                position = position.add(new Vec3(0, -2, -3.05));
+                falcon.forEach(mesh -> {
+                    mesh.setPosition(position);
+                });
+                cam.setPosition(position.add(new Vec3(-direction.x*100, -direction.y*100, 0.5)));
+            }
+        }
 	}
 	
 	public void animationTick(double time, double interval) {
@@ -97,9 +124,9 @@ public class TronController extends DefaultController {
 		});
 		
 		detectCollisions();
-		
-		ICamera cam = getCamera(getCurrentView());
 
+		this.cam = getCamera(getCurrentView());
+		
 		if(hasTurned) {
 		    hasTurned = false;
 		    ticksToIgnoreCamMove = 100;
@@ -110,11 +137,6 @@ public class TronController extends DefaultController {
 	            cam.setPosition(new Vec3(0, 0, 5));
 	        else {
 	            cam.setPosition(position.add(new Vec3(-direction.x*100, -direction.y*100, 0.5)));
-	            BoundingBox bbFalcon = new BoundingBox();
-	            for (IMesh mesh : falcon) {
-	                bbFalcon.add(mesh.getBounds());
-	            }
-	            System.out.println(bbFalcon.getCenter().subtract(cam.getPosition()));
 	        }
 		} else {
 		    Vec3 oldCamPos = cam.getPosition();
