@@ -23,7 +23,9 @@ public class TronController extends DefaultController {
 		//@formatter:on
 	};
 	
-	private Vec3 direction = new Vec3(0, -0.01, 0);
+	private static final double MOVE_PER_SECOND = 0.66;
+	
+	private Vec3 direction = new Vec3(0, -1, 0);
 	private Vec3 position = Vec3.ZERO;
 	private final Mat4 scale = Mat4.scale(0.005f);
 	private Mat4 rotation = Mat4.rotate(0, Vec3.Z);
@@ -67,13 +69,13 @@ public class TronController extends DefaultController {
 	private void turn(int angle) {
 		rotation = Mat4.multiply(rotation, Mat4.rotate(angle, Vec3.Z));
 		if(direction.y > 0) {
-			direction = direction.add(new Vec3(angle > 0 ? -0.01 : 0.01, -0.01, 0));
+			direction = direction.add(new Vec3(angle > 0 ? -1 : 1, -1, 0));
 		} else if(direction.y < 0) {
-			direction = direction.add(new Vec3(angle > 0 ? 0.01 : -0.01, 0.01, 0));
+			direction = direction.add(new Vec3(angle > 0 ? 1 : -1, 1, 0));
 		} else if(direction.x > 0) {
-			direction = direction.add(new Vec3(-0.01, angle > 0 ? 0.01 : -0.01, 0));
+			direction = direction.add(new Vec3(-1, angle > 0 ? 1 : -1, 0));
 		} else {
-			direction = direction.add(new Vec3(0.01, angle > 0 ? -0.01 : 0.01, 0));
+			direction = direction.add(new Vec3(1, angle > 0 ? -1 : 1, 0));
 		}
 	}
 	
@@ -87,10 +89,21 @@ public class TronController extends DefaultController {
         boolean isInElevator = bbElevator.intersects2D(bbFalcon);
         //System.out.println(isOutOfMap + " | " + isInElevator);
 	}
-	
+	private double time_last = 0;
 	public void animationTick(double time, double interval) {
+		if(time_last == 0){
+			 time_last = time;
+			 return;
+		}
+		double dt = (time - time_last) * MOVE_PER_SECOND;
+		time_last = time;
+		
+		System.out.println(dt);
+		
+		
+		
 		Mat4 tr = Mat4.multiply(scale, rotation);
-		position = position.add(direction);
+		position = position.add(direction.scale((float)dt));
 		falcon.forEach(mesh -> {
 			mesh.setTransform(tr);
 			mesh.setPosition(position);
@@ -109,16 +122,16 @@ public class TronController extends DefaultController {
 		    if(fixCameraPos)
 	            cam.setPosition(new Vec3(0, 0, 5));
 	        else {
-	            cam.setPosition(position.add(new Vec3(-direction.x*100, -direction.y*100, 0.5)));
+	            cam.setPosition(position.add(new Vec3(-direction.x, -direction.y, 0.5)));
 	            BoundingBox bbFalcon = new BoundingBox();
-	            for (IMesh mesh : falcon) {
+	            /*for (IMesh mesh : falcon) {
 	                bbFalcon.add(mesh.getBounds());
 	            }
-	            System.out.println(bbFalcon.getCenter().subtract(cam.getPosition()));
+	            System.out.println(bbFalcon.getCenter().subtract(cam.getPosition()));*/
 	        }
 		} else {
 		    Vec3 oldCamPos = cam.getPosition();
-		    Vec3 futureCamPos = position.add(new Vec3(-direction.x*100, -direction.y*100, 0.5));
+		    Vec3 futureCamPos = position.add(new Vec3(-direction.x, -direction.y, 0.5));
 		    Vec3 difference = futureCamPos.subtract(oldCamPos);
 		    difference = difference.scale((1/(float) ticksToIgnoreCamMove--));
 		    
