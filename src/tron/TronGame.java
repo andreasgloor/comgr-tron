@@ -29,6 +29,9 @@ public class TronGame {
 		new TronGame();
 	}
 
+	
+	
+	
 	private TronGame() {
 		Platform.get().init();
 		
@@ -37,7 +40,7 @@ public class TronGame {
 		final List<IMesh> building = new ArrayList<>();
 		final List<IMesh> elevator = new ArrayList<>();
 		
-		final List<IMesh> beam = new ArrayList<>();
+		// final List<IMesh> beam = new ArrayList<>();
 		
 		try {
 			final URL objFalcon = getClass().getResource("/models/WpnCaptainBlueFalcon.obj");
@@ -51,8 +54,8 @@ public class TronGame {
 			final URL objElevator = getClass().getResource("/models/elevator.obj");
             new ObjReader(objElevator, Options.CONVERT_TO_Z_UP).getMeshes().forEach(mesh -> elevator.add(mesh));
             
-            final URL beamblue = getClass().getResource("/models/beam.obj");
-            new ObjReader(beamblue, Options.CONVERT_TO_Z_UP).getMeshes().forEach(mesh -> beam.add(mesh));
+            /*final URL beamblue = getClass().getResource("/models/beam.obj");
+            new ObjReader(beamblue, Options.CONVERT_TO_Z_UP).getMeshes().forEach(mesh -> beam.add(mesh));*/
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -88,7 +91,7 @@ public class TronGame {
 			scene.add3DObjects(falcon);
 			scene.add3DObjects(falcon2);
 			
-			scene.add3DObjects(beam);
+			/*scene.add3DObjects(beam);
 			
 			beam.forEach(mesh -> mesh.setTransform(Mat4.scale(10000, 1, 1)));
 			beam.forEach(mesh -> mesh.setPosition(new Vec3(3,3,0)));
@@ -96,7 +99,7 @@ public class TronGame {
 				for(int i = 0; i < colors.length; ++i) {
 					colors[i][3] = 0.2f;
 				}
-			}));
+			}));*/
 			
 		});
 		controller.animate((time, interval) -> {
