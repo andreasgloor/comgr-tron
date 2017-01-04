@@ -27,6 +27,10 @@ public class Tail {
 		this.start = start;
 	}
 	
+	public void setMesh(IMesh mesh) {
+		this.mesh = mesh;
+	}
+	
 	public IMesh getMesh() {
 		return mesh; 
 	}

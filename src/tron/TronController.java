@@ -180,7 +180,10 @@ public class TronController extends DefaultController {
 		
 		cam = getCamera(getViews().get(0));
 		cam2 = getCamera(getViews().get(1));
-				
+		
+		InitTails();
+		CalculateFalconTail(position,0);
+		
 		if(hasTurned) {
 		    hasTurned = false;
 		    ticksToIgnoreCamMove = 100;
@@ -239,7 +242,7 @@ public class TronController extends DefaultController {
 	public void CalculateFalconTail(Vec3 position, int falconId) {
 		DoubleLinkedList<Tail> falconTail = tails.get(falconId);
 		//System.out.println("hasTurned: " + hasTurned + " hasLevelChagnged " + hasLevelChanged + " isEmpty " + tails.isEmpty());
-		if(hasTurned || hasLevelChanged || tails.isEmpty()) {
+		if(hasTurned || hasLevelChanged || falconTail.isEmpty()) {
 			// Create new Tail 
 			falconTail.addFirst(new Tail(position, position));
 		} else {
@@ -257,46 +260,48 @@ public class TronController extends DefaultController {
 			lastTail.setStart(lastTail.getEnd().add(dist));
 		}
 		//System.out.println("new start" + ((Tail)tails.getLast()).getStart() + " end: " + ((Tail)tails.getLast()).getEnd());
-		// RepaintTail(falconId);
+		
+		RepaintTail(falconId);
 	}
 	
 	/**
 	 * Resize / Transform Tail
 	 */
 	private void RepaintTail(int falconId) {
+		System.out.println("repaintTail");
+		
 		DoubleLinkedList<Tail> falconTail = tails.get(falconId);
 		if(falconTail.Length() == 1) {
-			Tail first = (Tail)falconTail.getFirst();
-			first.getMesh().setTransform(Mat4.scale(1,1,1));
+			
+			System.out.println("new falcon");
+			Tail t = (Tail)falconTail.getFirst();
+			PaintTail(t.getStart(),t.getEnd());
+			
+			//Tail first = (Tail)falconTail.getFirst();
+			// first.getMesh().setTransform(Mat4.scale(1,1,1));
 			
 		} else {
-			Tail first = (Tail)falconTail.getFirst(); 
+			System.out.println("move falcon" );
+			/*Tail first = (Tail)falconTail.getFirst(); 
 			first.getMesh().setTransform(Mat4.scale(1,1,1));
 			Tail last = (Tail)falconTail.getLast(); 
-			last.getMesh().setTransform(Mat4.scale(1,1,1));
+			last.getMesh().setTransform(Mat4.scale(1,1,1));*/
 		}
 	}
 	
-	private void Test() {
+	private void PaintTail(Vec3 start, Vec3 end) {
 		List<IMesh> beam = new ArrayList<>();
 		final URL beamblue = getClass().getResource("/models/beam.obj");
         try {
 			new ObjReader(beamblue, Options.CONVERT_TO_Z_UP).getMeshes().forEach(mesh -> beam.add(mesh));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// ignore
 		}
 		
         getScene().add3DObjects(beam);
 		
-		beam.forEach(mesh -> mesh.setTransform(Mat4.scale(10000, 1, 1)));
-		beam.forEach(mesh -> mesh.setPosition(new Vec3(3,3,0)));
-		beam.forEach(mesh -> mesh.getGeometry().modify((id, colors) -> {
-			for(int i = 0; i < colors.length; ++i) {
-				colors[i][3] = 0.2f;
-			}
-		}));
-		
+		beam.forEach(mesh -> mesh.setTransform(Mat4.scale(10, 10, 1)));
+		beam.forEach(mesh -> mesh.setPosition(new Vec3(start.x,start.y,0)));	
 	
 	}
 	
