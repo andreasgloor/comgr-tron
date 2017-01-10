@@ -12,75 +12,77 @@ import ch.fhnw.ether.scene.DefaultScene;
 import ch.fhnw.ether.scene.IScene;
 import ch.fhnw.ether.scene.light.DirectionalLight;
 import ch.fhnw.ether.scene.mesh.IMesh;
-import ch.fhnw.ether.scene.mesh.MeshUtilities;
 import ch.fhnw.ether.view.DefaultView;
 import ch.fhnw.ether.view.IView;
-import ch.fhnw.ether.view.IView.ViewType;
 import ch.fhnw.util.color.RGB;
 import ch.fhnw.util.math.Mat4;
 import ch.fhnw.util.math.Vec3;
-import ch.fhnw.util.math.Vec4;
 import ch.fhnw.util.math.geometry.BoundingBox;
 
-public class TronGame {
-	private IMesh mesh;
-	
+public class TronGame {	
 	public static void main(String[] args) {
 		new TronGame();
 	}
 
-	
-	
-	
 	private TronGame() {
 		Platform.get().init();
 		
-		final List<IMesh> falcon = new ArrayList<>();
-		final List<IMesh> falcon2 = new ArrayList<>();
 		final List<IMesh> building = new ArrayList<>();
 		final List<IMesh> elevator = new ArrayList<>();
-		
-		// final List<IMesh> beam = new ArrayList<>();
+		final List<Player> players = new ArrayList<>();
 		
 		try {
-			final URL objFalcon = getClass().getResource("/models/WpnCaptainBlueFalcon.obj");
-			new ObjReader(objFalcon, Options.CONVERT_TO_Z_UP).getMeshes().forEach(mesh -> falcon.add(mesh));
-			new ObjReader(objFalcon, Options.CONVERT_TO_Z_UP).getMeshes().forEach(mesh -> falcon2.add(mesh));
-			
-			
+		    Player player1 = new Player(
+		            getClass().getResource("/models/WpnCaptainBlueFalcon.obj"),
+		            new Vec3(0, -2, 0),
+		            new Vec3(0, -1, 0),
+		            Mat4.rotate(0, Vec3.Z),
+		            ElevatorFace.BACK,
+		            Mat4.scale(0.005f)
+            );
+		    
+		    Player player2 = new Player(
+		            getClass().getResource("/models/WpnCaptainBlueFalcon.obj"),
+                    new Vec3(0, 2, 0),
+                    new Vec3(0, 1, 0),
+                    Mat4.rotate(180, Vec3.Z),
+                    ElevatorFace.FRONT,
+                    Mat4.scale(0.005f)
+            );
+		    
+		    players.add(player1);
+		    players.add(player2);
+						
 			final URL objBuilding = getClass().getResource("/models/building.obj");
 			new ObjReader(objBuilding, Options.CONVERT_TO_Z_UP).getMeshes().forEach(mesh -> building.add(mesh));
 			
 			final URL objElevator = getClass().getResource("/models/elevator.obj");
             new ObjReader(objElevator, Options.CONVERT_TO_Z_UP).getMeshes().forEach(mesh -> elevator.add(mesh));
-            
-            /*final URL beamblue = getClass().getResource("/models/beam.obj");
-            new ObjReader(beamblue, Options.CONVERT_TO_Z_UP).getMeshes().forEach(mesh -> beam.add(mesh));*/
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		BoundingBox bbBuilding = getBoundingBoxOfObj(building);
-        BoundingBox bbElevator = getBoundingBoxOfObj(elevator);
+		final BoundingBox bbBuilding = getBoundingBoxOfObj(building);
+        final BoundingBox bbElevator = getBoundingBoxOfObj(elevator);
 		
-		TronController controller = new TronController(falcon, falcon2, bbBuilding, bbElevator);
+		TronController controller = new TronController(players, bbBuilding, bbElevator);
 		
 		controller.run(time -> {
 			new DefaultView(controller, 0, 40, 1200, 460, IView.INTERACTIVE_VIEW, "TronGame");
 		});
+		
 		try {
 			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		
 		controller.run(time -> {
-			new DefaultView(controller, 0, 540, 1200, 460, new IView.Config(ViewType.INTERACTIVE_VIEW, 0, new IView.ViewFlag[0]), "TronGame");
-	
+			new DefaultView(controller, 0, 540, 1200, 460, IView.INTERACTIVE_VIEW, "TronGame");
+			
 			IScene scene = new DefaultScene(controller);
 			controller.setScene(scene);
-			
-			//scene.add3DObject(MeshUtilities.createGroundPlane(10f)); // -10 bis +10
-			
+						
 			scene.add3DObject(new DirectionalLight(new Vec3(10, -10, 10), RGB.BLACK, RGB.WHITE));
 			scene.add3DObject(new DirectionalLight(new Vec3(-10, 10, 10), RGB.BLACK, RGB.WHITE));
 			scene.add3DObject(new DirectionalLight(new Vec3(10, -10, 10), RGB.BLACK, RGB.WHITE));
@@ -88,24 +90,14 @@ public class TronGame {
 			
 			scene.add3DObjects(building);
 			scene.add3DObjects(elevator);
-			scene.add3DObjects(falcon);
-			scene.add3DObjects(falcon2);
-			
-			/*scene.add3DObjects(beam);
-			
-			beam.forEach(mesh -> mesh.setTransform(Mat4.scale(10000, 1, 1)));
-			beam.forEach(mesh -> mesh.setPosition(new Vec3(3,3,0)));
-			beam.forEach(mesh -> mesh.getGeometry().modify((id, colors) -> {
-				for(int i = 0; i < colors.length; ++i) {
-					colors[i][3] = 0.2f;
-				}
-			}));*/
-			
+			players.forEach(player -> scene.add3DObjects(player.getPlayerObj()));
 		});
+		
 		controller.animate((time, interval) -> {
 		    if(controller.getCurrentView() != null)
 		        controller.animationTick(time, interval);
 		});
+		
 		Platform.get().run();
 	}
 	
