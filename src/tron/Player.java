@@ -27,7 +27,6 @@ public class Player {
     
     private int buildingLevel = 0;
     
-//  TODO: Make camera ref final
     private ICamera playerCamera;
     private boolean hasTurned = false;
     private boolean camIsFixed = false;

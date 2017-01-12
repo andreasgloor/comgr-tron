@@ -88,21 +88,16 @@ public class TronController extends DefaultController {
 	    List<BoundingBox> bbPlayers = new ArrayList<>();
         players.forEach(player -> bbPlayers.add(player.getBoundingBox()));
         
-//        TODO: Fix after player class integration
 //        boolean isOutOfMap = !bbBuilding.contains2D(bbPlayer);
         
-//        if(bbElevator.intersects2D(bbPlayers.get(0))) {            
-//            if(players.get(0).getPossibleFaceToHit() != null && players.get(0).getPossibleFaceToHit().equals(ElevatorFace.FRONT)) {
-//                players.get(0).changeLevel(bbElevator.getMaxX()-bbElevator.getMinX());
-//            }
-//        }
+        if(bbElevator.intersects2D(bbPlayers.get(0))) {            
+            if(players.get(0).getPossibleFaceToHit() != null && players.get(0).getPossibleFaceToHit().equals(ElevatorFace.FRONT)) {
+                players.get(0).changeLevel(bbElevator.getMaxX()-bbElevator.getMinX());
+            }
+        }
 	}
 	
-	public void animationTick(double time, double interval) {
-//      TODO: Set this once on startup
-        this.players.get(0).setPlayerCamera(getCamera(getViews().get(0)));
-        this.players.get(1).setPlayerCamera(getCamera(getViews().get(1)));
-	    
+	public void animationTick(double time, double interval) {	    
 	    if(getViews().size() < 2)
 	        return;
 	    

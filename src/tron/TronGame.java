@@ -64,7 +64,6 @@ public class TronGame {
 		
 		final BoundingBox bbBuilding = getBoundingBoxOfObj(building);
         final BoundingBox bbElevator = getBoundingBoxOfObj(elevator);
-		
 		TronController controller = new TronController(players, bbBuilding, bbElevator);
 		
 		controller.run(time -> {
@@ -91,6 +90,10 @@ public class TronGame {
 			scene.add3DObjects(building);
 			scene.add3DObjects(elevator);
 			players.forEach(player -> scene.add3DObjects(player.getPlayerObj()));
+			
+			for(int i = 0; i < players.size(); i++) {
+			    players.get(i).setPlayerCamera(controller.getCamera(controller.getViews().get(i)));
+			}
 		});
 		
 		controller.animate((time, interval) -> {
