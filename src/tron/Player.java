@@ -3,7 +3,7 @@ package tron;
 import ch.fhnw.util.math.Mat4;
 import ch.fhnw.util.math.Vec3;
 import ch.fhnw.util.math.geometry.BoundingBox;
-
+import tron.helper.ElevatorFace;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -25,7 +25,8 @@ public class Player {
     private ElevatorFace possibleFaceToHit;
     private BoundingBox boundingBox;
     
-    private int buildingLevel = 0;
+    private int floorLevel = 0;
+    private boolean isDestroyed = false;
     
     private ICamera playerCamera;
     private boolean hasTurned = false;
@@ -44,16 +45,18 @@ public class Player {
     }
     
     public void move(double deltaTime) {
-        Mat4 tr = Mat4.multiply(scale, rotation);
-        position = position.add(direction.scale((float) deltaTime));
-        
-        playerObj.forEach(mesh -> {
-            mesh.setTransform(tr);
-            mesh.setPosition(position);
-        });
-        
-        calculateBB();
-        updateCamera();
+        if(!isDestroyed) {
+            Mat4 tr = Mat4.multiply(scale, rotation);
+            position = position.add(direction.scale((float) deltaTime));
+            
+            playerObj.forEach(mesh -> {
+                mesh.setTransform(tr);
+                mesh.setPosition(position);
+            });
+            
+            calculateBB();
+            updateCamera();
+        }
     }
     
     public void turn(int angle) {
@@ -77,14 +80,25 @@ public class Player {
         }
     }
     
-    public void changeLevel(double elevatorWidth) {
-        position = position.add(new Vec3(0, elevatorWidth + (boundingBox.getMaxY()-boundingBox.getMinY()), TronController.FLOOR_HEIGHT));
+    public void changeLevel(double elevatorWidth, boolean isGoingUp) {
+        double zShift;
+        if(isGoingUp) {
+            zShift = TronController.FLOOR_HEIGHT;
+            floorLevel++;
+        }
+        else {
+            zShift = -TronController.FLOOR_HEIGHT;
+            floorLevel--;
+        }
         
+        position = position.add(new Vec3(0, elevatorWidth + (boundingBox.getMaxY()-boundingBox.getMinY()), zShift));
+
         playerObj.forEach(mesh -> {
             mesh.setPosition(position);
         });
         
         playerCamera.setPosition(position.add(new Vec3(-direction.x, -direction.y, 0.5)));
+        
     }
     
     private void calculateBB() {
@@ -134,6 +148,14 @@ public class Player {
 
     public BoundingBox getBoundingBox() {
         return boundingBox;
+    }
+
+    public int getFloorLevel() {
+        return floorLevel;
+    }
+
+    public void setDestroyed(boolean isDestroyed) {
+        this.isDestroyed = isDestroyed;
     }
 
     public void setPlayerCamera(ICamera playerCamera) {

@@ -18,6 +18,7 @@ import ch.fhnw.util.color.RGB;
 import ch.fhnw.util.math.Mat4;
 import ch.fhnw.util.math.Vec3;
 import ch.fhnw.util.math.geometry.BoundingBox;
+import tron.helper.ElevatorFace;
 
 public class TronGame {	
 	public static void main(String[] args) {
@@ -64,7 +65,9 @@ public class TronGame {
 		
 		final BoundingBox bbBuilding = getBoundingBoxOfObj(building);
         final BoundingBox bbElevator = getBoundingBoxOfObj(elevator);
-		TronController controller = new TronController(players, bbBuilding, bbElevator);
+        final CollisionHandler collisionHandler = new CollisionHandler(bbBuilding, bbElevator);
+		
+        TronController controller = new TronController(players, collisionHandler);
 		
 		controller.run(time -> {
 			new DefaultView(controller, 0, 40, 1200, 460, IView.INTERACTIVE_VIEW, "TronGame");

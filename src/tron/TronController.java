@@ -13,11 +13,9 @@ import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.event.IKeyEvent;
 import ch.fhnw.ether.formats.IModelReader.Options;
 import ch.fhnw.ether.formats.obj.ObjReader;
-import ch.fhnw.ether.scene.camera.ICamera;
 import ch.fhnw.ether.scene.mesh.IMesh;
 import ch.fhnw.util.math.Mat4;
 import ch.fhnw.util.math.Vec3;
-import ch.fhnw.util.math.geometry.BoundingBox;
 import tron.helper.DoubleLinkedList;
 
 public class TronController extends DefaultController {
@@ -35,18 +33,16 @@ public class TronController extends DefaultController {
 	public static final double FLOOR_HEIGHT = 6.1;
 	
 	private final List<Player> players;
-
-	private final BoundingBox bbBuilding, bbElevator;	
+	private final CollisionHandler collisionHandler;
 	
 	private boolean fixCameraPos = false;
 	private boolean hasLevelChanged = false;
 	private boolean hasLevelChanged2 = false;
     private double time_last = 0;
 	
-	public TronController(List<Player> players, BoundingBox bbBuilding, BoundingBox bbElevator) {
+	public TronController(List<Player> players, CollisionHandler collisionHandler) {
 	    this.players = players;
-		this.bbBuilding = bbBuilding;
-		this.bbElevator = bbElevator;
+		this.collisionHandler = collisionHandler;
 	}
 
     @Override
@@ -84,19 +80,6 @@ public class TronController extends DefaultController {
 		}
 	}
 	
-	private void detectCollisions() {
-	    List<BoundingBox> bbPlayers = new ArrayList<>();
-        players.forEach(player -> bbPlayers.add(player.getBoundingBox()));
-        
-//        boolean isOutOfMap = !bbBuilding.contains2D(bbPlayer);
-        
-        if(bbElevator.intersects2D(bbPlayers.get(0))) {            
-            if(players.get(0).getPossibleFaceToHit() != null && players.get(0).getPossibleFaceToHit().equals(ElevatorFace.FRONT)) {
-                players.get(0).changeLevel(bbElevator.getMaxX()-bbElevator.getMinX());
-            }
-        }
-	}
-	
 	public void animationTick(double time, double interval) {	    
 	    if(getViews().size() < 2)
 	        return;
@@ -108,10 +91,9 @@ public class TronController extends DefaultController {
 		
 		double dt = (time - time_last) * MOVE_PER_SECOND;
 		time_last = time;
-		
-		detectCollisions();
 
 		players.forEach(player -> player.move(dt));
+	    players.forEach(player -> collisionHandler.detectCollisions(player));
 		
 		InitTails();
 		CalculateFalconTail(players.get(0).getPosition(), 0);
