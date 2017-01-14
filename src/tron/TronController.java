@@ -93,7 +93,8 @@ public class TronController extends DefaultController {
 		time_last = time;
 
 		players.forEach(player -> player.move(dt, bbBuilding, bbElevator));
-	    players.forEach(player -> collisionHandler.detectCollisions(player));
+		collisionHandler.detectPlayerCollisions(players);
+	    players.forEach(player -> collisionHandler.detectSceneCollisions(player));
 		
 		InitTails();
 		CalculateFalconTail(players.get(0).getPosition(), 0);

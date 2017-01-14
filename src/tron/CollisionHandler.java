@@ -1,5 +1,7 @@
 package tron;
 
+import java.util.List;
+
 import ch.fhnw.util.math.Vec3;
 import ch.fhnw.util.math.geometry.BoundingBox;
 import tron.helper.ElevatorFace;
@@ -14,10 +16,20 @@ public class CollisionHandler {
         this.bbElevator = bbElevator;
     }
     
-    public void detectCollisions(Player player) {
-        player.setDestroyed(!bbBuilding.contains2D(player.getBoundingBox()));
-        
+    public void detectPlayerCollisions(List<Player> players) {     
+        for (int i = 0; i < players.size(); i++) {
+            for (int j = i + 1; j < players.size(); j++) {
+                if(players.get(i).getBoundingBox().intersects2D(players.get(j).getBoundingBox())) {
+                    players.get(i).setDestroyed(true);
+                    players.get(j).setDestroyed(true);
+                }                
+            }
+        }
+    }
+    
+    public void detectSceneCollisions(Player player) {
         if(!player.isDestroyed()) {
+            player.setDestroyed(!bbBuilding.contains2D(player.getBoundingBox()));
             handleElevatorCollision(player);
             handleCameraCollision(player);
         }
