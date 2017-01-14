@@ -41,16 +41,16 @@ public class CollisionHandler {
             
             switch(player.getPossibleFaceToHit()) {
                 case FRONT:
-                    yOutside = (player.getPlayerCamera().getPosition().y - bbBuilding.getMinX()) * (-1);
+                    yOutside = (player.getPlayerCamera().getPosition().y - bbBuilding.getMinY()) * (-1);
                     break;
                 case BACK:
-                    yOutside = (player.getPlayerCamera().getPosition().y - bbBuilding.getMaxX()) * (-1);
+                    yOutside = (player.getPlayerCamera().getPosition().y - bbBuilding.getMaxY()) * (-1);
                     break;
                 case LEFT:
-                    xOutside = (player.getPlayerCamera().getPosition().x - bbBuilding.getMinY()) * (-1);
+                    xOutside = (player.getPlayerCamera().getPosition().x - bbBuilding.getMinX()) * (-1);
                     break;
                 case RIGHT:
-                    xOutside = (player.getPlayerCamera().getPosition().x - bbBuilding.getMaxY()) * (-1);
+                    xOutside = (player.getPlayerCamera().getPosition().x - bbBuilding.getMaxX()) * (-1);
                     break;
             }
             
@@ -63,16 +63,16 @@ public class CollisionHandler {
             
             switch(player.getPossibleFaceToHit()) {
                 case FRONT:
-                    yInside = (player.getPlayerCamera().getPosition().y - bbElevator.getMaxX()) * (-1);
+                    yInside = (player.getPlayerCamera().getPosition().y - bbElevator.getMaxY()) * (-1);
                     break;
                 case BACK:
-                    yInside = (player.getPlayerCamera().getPosition().y - bbElevator.getMinX()) * (-1);
+                    yInside = (player.getPlayerCamera().getPosition().y - bbElevator.getMinY()) * (-1);
                     break;
                 case LEFT:
-                    xInside = (player.getPlayerCamera().getPosition().x - bbElevator.getMaxY()) * (-1);
+                    xInside = (player.getPlayerCamera().getPosition().x - bbElevator.getMaxX()) * (-1);
                     break;
                 case RIGHT:
-                    xInside = (player.getPlayerCamera().getPosition().x - bbElevator.getMinY()) * (-1);
+                    xInside = (player.getPlayerCamera().getPosition().x - bbElevator.getMinX()) * (-1);
                     break;
             }
             
