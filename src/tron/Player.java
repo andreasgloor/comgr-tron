@@ -15,13 +15,17 @@ import ch.fhnw.ether.scene.camera.ICamera;
 import ch.fhnw.ether.scene.mesh.IMesh;
 
 public class Player {
-    
+	private static final float MAX_SPEED = 2.5f;
+	private static final float MIN_SPEED = 0.5f;
+	private static final float SPEED_STEP = 0.05f;
+	
     private final List<IMesh> playerObj = new ArrayList<>();
     private final Mat4 scale;
     
     private Vec3 position;
     private Vec3 direction;
     private Mat4 rotation;
+    private float speed = 1.25f;
     private ElevatorFace possibleFaceToHit;
     private BoundingBox boundingBox;
     private double playerLength;
@@ -54,7 +58,7 @@ public class Player {
     public void move(double deltaTime, BoundingBox bbBuilding, BoundingBox bbElevator) {
         if(!isDestroyed) {
             Mat4 tr = Mat4.multiply(scale, rotation);
-            position = position.add(direction.scale((float) deltaTime));
+            position = position.add(direction.scale((float) deltaTime*speed));
             
             playerObj.forEach(mesh -> {
                 mesh.setTransform(tr);
@@ -64,6 +68,13 @@ public class Player {
             calculateBB();
             updateCamera(bbBuilding, bbElevator);
         }
+    }
+    
+    public void speedUp() {
+    	speed = Math.min(speed+SPEED_STEP, MAX_SPEED);
+    }
+    public void speedDown() {
+    	speed = Math.max(speed-SPEED_STEP, MIN_SPEED);
     }
     
     public void turn(int angle) {

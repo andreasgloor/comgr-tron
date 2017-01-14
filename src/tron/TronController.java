@@ -30,7 +30,6 @@ public class TronController extends DefaultController {
 		//@formatter:on
 	};
 	
-	private static final double MOVE_PER_SECOND = 0.66;
 	public static final double FLOOR_HEIGHT = 6.1;
 	
 	private final List<Player> players;
@@ -60,6 +59,12 @@ public class TronController extends DefaultController {
 		    players.get(0).turn(90);
 		    players.get(0).setTurned(true);
 			break;
+		case GLFW.GLFW_KEY_UP:
+			players.get(0).speedUp();
+			break;
+		case GLFW.GLFW_KEY_DOWN:
+			players.get(0).speedDown();
+			break;
 		case GLFW.GLFW_KEY_D:
 		    players.get(1).turn(-90);
 		    players.get(1).setTurned(true);
@@ -67,6 +72,12 @@ public class TronController extends DefaultController {
 		case GLFW.GLFW_KEY_A:
 		    players.get(1).turn(90);
 		    players.get(1).setTurned(true);
+			break;
+		case GLFW.GLFW_KEY_W:
+			players.get(1).speedUp();
+			break;
+		case GLFW.GLFW_KEY_S:
+			players.get(1).speedDown();
 			break;
 		case GLFW.GLFW_KEY_H:
 			printHelp(HELP);
@@ -89,7 +100,7 @@ public class TronController extends DefaultController {
 	        return;
 		}
 		
-		double dt = (time - time_last) * MOVE_PER_SECOND;
+		double dt = (time - time_last);
 		time_last = time;
 
 		players.forEach(player -> player.move(dt, bbBuilding, bbElevator));
