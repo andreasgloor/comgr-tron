@@ -16,6 +16,7 @@ import ch.fhnw.ether.formats.obj.ObjReader;
 import ch.fhnw.ether.scene.mesh.IMesh;
 import ch.fhnw.util.math.Mat4;
 import ch.fhnw.util.math.Vec3;
+import ch.fhnw.util.math.geometry.BoundingBox;
 import tron.helper.DoubleLinkedList;
 
 public class TronController extends DefaultController {
@@ -33,22 +34,24 @@ public class TronController extends DefaultController {
 	public static final double FLOOR_HEIGHT = 6.1;
 	
 	private final List<Player> players;
+	private final BoundingBox bbBuilding;
+	private final BoundingBox bbElevator;
 	private final CollisionHandler collisionHandler;
 	
 	private boolean fixCameraPos = false;
 	private boolean hasLevelChanged = false;
     private double time_last = 0;
 	
-	public TronController(List<Player> players, CollisionHandler collisionHandler) {
+	public TronController(List<Player> players, BoundingBox bbBuilding, BoundingBox bbElevator) {
 	    this.players = players;
-		this.collisionHandler = collisionHandler;
+	    this.bbBuilding = bbBuilding;
+	    this.bbElevator = bbElevator;
+		this.collisionHandler = new CollisionHandler(bbBuilding, bbElevator);
 	}
 
     @Override
 	public void keyPressed(IKeyEvent e) {
 		switch (e.getKey()) {
-		//case GLFW.GLFW_KEY_UP:
-		//case GLFW.GLFW_KEY_DOWN:
 		case GLFW.GLFW_KEY_RIGHT:
 			players.get(0).turn(-90);
 			players.get(0).setTurned(true);
@@ -57,8 +60,6 @@ public class TronController extends DefaultController {
 		    players.get(0).turn(90);
 		    players.get(0).setTurned(true);
 			break;
-		//case GLFW.GLFW_KEY_W:
-		//case GLFW.GLFW_KEY_S:
 		case GLFW.GLFW_KEY_D:
 		    players.get(1).turn(-90);
 		    players.get(1).setTurned(true);
@@ -91,7 +92,7 @@ public class TronController extends DefaultController {
 		double dt = (time - time_last) * MOVE_PER_SECOND;
 		time_last = time;
 
-		players.forEach(player -> player.move(dt));
+		players.forEach(player -> player.move(dt, bbBuilding, bbElevator));
 	    players.forEach(player -> collisionHandler.detectCollisions(player));
 		
 		InitTails();

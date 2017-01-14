@@ -48,10 +48,10 @@ public class Player {
         this.possibleFaceToHit = possibleFaceToHit;
         
         calculateBB();
-        this.playerLength = (boundingBox.getMaxY()-boundingBox.getMinY());
+        this.playerLength = boundingBox.getExtentY();
     }
     
-    public void move(double deltaTime) {
+    public void move(double deltaTime, BoundingBox bbBuilding, BoundingBox bbElevator) {
         if(!isDestroyed) {
             Mat4 tr = Mat4.multiply(scale, rotation);
             position = position.add(direction.scale((float) deltaTime));
@@ -62,7 +62,7 @@ public class Player {
             });
             
             calculateBB();
-            updateCamera();
+            updateCamera(bbBuilding, bbElevator);
         }
     }
     
@@ -89,14 +89,11 @@ public class Player {
     
     public void changeLevel(double elevatorWidth, boolean isGoingUp) {
         Vec3 shiftVector;
-        
         if(isGoingUp) {
             shiftVector = new Vec3(0, elevatorWidth + playerLength, TronController.FLOOR_HEIGHT);
-            System.out.println(shiftVector);
             floorLevel++;
         } else {
             shiftVector = new Vec3(0, elevatorWidth - playerLength, -TronController.FLOOR_HEIGHT);
-            System.out.println(shiftVector);
             floorLevel--;
         }
         
@@ -105,8 +102,7 @@ public class Player {
             mesh.setPosition(position);
         });
         
-        playerCamera.setPosition(position.add(new Vec3(-direction.x, -direction.y, 0.5)));
-        
+        ticksToIgnoreCamMove = 0;
     }
     
     private void calculateBB() {
@@ -119,10 +115,10 @@ public class Player {
         boundingBox = bb;
     }
     
-    private void updateCamera() {
+    private void updateCamera(BoundingBox bbBuilding, BoundingBox bbElevator) {
         if(hasTurned) {
             hasTurned = false;
-            ticksToIgnoreCamMove = 100;
+            ticksToIgnoreCamMove = 25;
         }
         
         if(camIsFixed) {
@@ -135,7 +131,7 @@ public class Player {
                 Vec3 futureCamPos = position.add(new Vec3(-direction.x, -direction.y, 0.5));
                 Vec3 difference = futureCamPos.subtract(oldCamPos);
                 difference = difference.scale((1/(float) ticksToIgnoreCamMove--));
-                playerCamera.setPosition(oldCamPos.add(difference));
+                playerCamera.setPosition(oldCamPos.add(difference));            
             }
         }
         
@@ -150,6 +146,10 @@ public class Player {
     
     public Vec3 getPosition() {
         return position;
+    }
+
+    public Vec3 getDirection() {
+        return direction;
     }
 
     public ElevatorFace getPossibleFaceToHit() {
@@ -174,6 +174,10 @@ public class Player {
 
     public void setPlayerCamera(ICamera playerCamera) {
         this.playerCamera = playerCamera;
+    }
+
+    public ICamera getPlayerCamera() {
+        return playerCamera;
     }
 
     public boolean hasTurned() {

@@ -64,10 +64,8 @@ public class TronGame {
 		}
 		
 		final BoundingBox bbBuilding = getBoundingBoxOfObj(building);
-        final BoundingBox bbElevator = getBoundingBoxOfObj(elevator);
-        final CollisionHandler collisionHandler = new CollisionHandler(bbBuilding, bbElevator);
-		
-        TronController controller = new TronController(players, collisionHandler);
+        final BoundingBox bbElevator = getBoundingBoxOfObj(elevator);		
+        TronController controller = new TronController(players, bbBuilding, bbElevator);
 		
 		controller.run(time -> {
 			new DefaultView(controller, 0, 40, 1200, 460, IView.INTERACTIVE_VIEW, "TronGame");
