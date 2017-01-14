@@ -1,8 +1,10 @@
 package tron;
 
+import ch.fhnw.util.color.RGBA;
 import ch.fhnw.util.math.Mat4;
 import ch.fhnw.util.math.Vec3;
 import ch.fhnw.util.math.geometry.BoundingBox;
+import tron.helper.DoubleLinkedList;
 import tron.helper.ElevatorFace;
 import java.io.IOException;
 import java.net.URL;
@@ -13,6 +15,7 @@ import ch.fhnw.ether.formats.IModelReader.Options;
 import ch.fhnw.ether.formats.obj.ObjReader;
 import ch.fhnw.ether.scene.camera.ICamera;
 import ch.fhnw.ether.scene.mesh.IMesh;
+import ch.fhnw.ether.scene.mesh.material.ColorMaterial;
 
 public class Player {
 	private static final float MAX_SPEED = 2.5f;
@@ -38,8 +41,11 @@ public class Player {
     private boolean camIsFixed = false;
     private int ticksToIgnoreCamMove = 0;
     
-    public Player(URL playerObj, Vec3 position, Vec3 direction, Mat4 rotation, ElevatorFace possibleFaceToHit, Mat4 scale) throws IOException {
-        new ObjReader(playerObj, Options.CONVERT_TO_Z_UP).getMeshes().forEach(mesh -> this.playerObj.add(mesh));
+    private RGBA beamColor; 
+    public DoubleLinkedList<Tail> tail;
+    
+    public Player(URL playerObj, Vec3 position, Vec3 direction, Mat4 rotation, ElevatorFace possibleFaceToHit, Mat4 scale, RGBA beamColor) throws IOException {
+    	new ObjReader(playerObj, Options.CONVERT_TO_Z_UP).getMeshes().forEach(mesh -> this.playerObj.add(mesh));
         Mat4 tr = Mat4.multiply(scale, rotation);
         this.playerObj.forEach(mesh -> {
             mesh.setTransform(tr);
@@ -53,6 +59,8 @@ public class Player {
         
         calculateBB();
         this.playerLength = boundingBox.getExtentY();
+        this.beamColor = beamColor;
+        tail = new DoubleLinkedList<Tail>();
     }
     
     public void move(double deltaTime, BoundingBox bbBuilding, BoundingBox bbElevator) {
@@ -150,6 +158,55 @@ public class Player {
     }
     
     
+    private boolean hasLevelChanged = false;
+    public void CalculateFalconTail() {
+    	if(hasTurned() || hasLevelChanged || tail.isEmpty()) {
+			// Create new Tail 
+			tail.addFirst(new Tail(position, position));
+		} else {
+			  Tail currentTail = (Tail) tail.getFirst();
+			  currentTail.setEnd(position);
+		}
+		
+		// Resize Tail at the End
+		Tail lastTail = (Tail) tail.getLast();
+		Vec3 tailDistance = lastTail.getStart().subtract(lastTail.getEnd());
+		if((tailDistance.x == 0 && tailDistance.y < 40 && tail.Length() > 1) || (tailDistance.y == 0 && tailDistance.x < 40 && tail.Length() > 1)) {
+			tail.removeLast();
+		} else {
+			Vec3 dist = new Vec3(tailDistance.x*0.8,tailDistance.y*0.8, tailDistance.z*0.8);
+			lastTail.setStart(lastTail.getEnd().add(dist));
+		}
+
+		RepaintTail();
+    }
+    
+	private void RepaintTail() {
+		if(tail.Length() == 1) {
+			Tail t = (Tail)tail.getFirst();
+			PaintTail(t.getStart(),t.getEnd());
+
+		} else {
+			//System.out.println("move falcon" );
+		}
+	}
+	
+	
+	private void PaintTail(Vec3 start, Vec3 end) {
+		List<IMesh> beam = new ArrayList<>();
+		final URL beamblue = getClass().getResource("/models/beam.obj");
+        try {
+			new ObjReader(beamblue, Options.CONVERT_TO_Z_UP).getMeshes(new ColorMaterial(getBeamColor())).forEach(mesh -> beam.add(mesh));
+		} catch (IOException e) {
+			// ignore
+		}
+		
+        TronGame.controller.getScene().add3DObjects(beam);
+		
+		beam.forEach(mesh -> mesh.setTransform(Mat4.scale(10, 10, 1)));
+		beam.forEach(mesh -> mesh.setPosition(new Vec3(start.x,start.y,0)));	
+	}
+
     /****** GETTER AND SETTER ******/
     public List<IMesh> getPlayerObj() {
         return playerObj;
@@ -201,5 +258,9 @@ public class Player {
 
     public void setCamFixed(boolean camIsFixed) {
         this.camIsFixed = camIsFixed;
+    }
+    
+    public RGBA getBeamColor() {
+    	return this.beamColor;
     }
 }

@@ -15,6 +15,7 @@ import ch.fhnw.ether.scene.mesh.IMesh;
 import ch.fhnw.ether.view.DefaultView;
 import ch.fhnw.ether.view.IView;
 import ch.fhnw.util.color.RGB;
+import ch.fhnw.util.color.RGBA;
 import ch.fhnw.util.math.Mat4;
 import ch.fhnw.util.math.Vec3;
 import ch.fhnw.util.math.geometry.BoundingBox;
@@ -24,7 +25,8 @@ public class TronGame {
 	public static void main(String[] args) {
 		new TronGame();
 	}
-
+	public static TronController controller = null;
+	
 	private TronGame() {
 		Platform.get().init();
 		
@@ -39,7 +41,8 @@ public class TronGame {
 		            new Vec3(0, -1, 0),
 		            Mat4.rotate(0, Vec3.Z),
 		            ElevatorFace.BACK,
-		            Mat4.scale(0.005f)
+		            Mat4.scale(0.005f),
+		            RGBA.BLUE
             );
 		    
 		    Player player2 = new Player(
@@ -48,7 +51,8 @@ public class TronGame {
                     new Vec3(0, 1, 0),
                     Mat4.rotate(180, Vec3.Z),
                     ElevatorFace.FRONT,
-                    Mat4.scale(0.005f)
+                    Mat4.scale(0.005f),
+                    RGBA.DARK_GRAY
             );
 		    
 		    players.add(player1);
@@ -65,7 +69,7 @@ public class TronGame {
 		
 		final BoundingBox bbBuilding = getBoundingBoxOfObj(building);
         final BoundingBox bbElevator = getBoundingBoxOfObj(elevator);		
-        TronController controller = new TronController(players, bbBuilding, bbElevator);
+        controller = new TronController(players, bbBuilding, bbElevator);
 		
 		controller.run(time -> {
 			new DefaultView(controller, 0, 40, 1200, 460, IView.INTERACTIVE_VIEW, "TronGame");
