@@ -37,7 +37,6 @@ public class TronController extends DefaultController {
 	
 	private boolean fixCameraPos = false;
 	private boolean hasLevelChanged = false;
-	private boolean hasLevelChanged2 = false;
     private double time_last = 0;
 	
 	public TronController(List<Player> players, CollisionHandler collisionHandler) {

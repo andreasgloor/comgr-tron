@@ -24,6 +24,7 @@ public class Player {
     private Mat4 rotation;
     private ElevatorFace possibleFaceToHit;
     private BoundingBox boundingBox;
+    private double playerLength;
     
     private int floorLevel = 0;
     private boolean isDestroyed = false;
@@ -33,15 +34,21 @@ public class Player {
     private boolean camIsFixed = false;
     private int ticksToIgnoreCamMove = 0;
     
-    public Player(URL playerObj, Vec3 position, Vec3 direction, Mat4 rotation, ElevatorFace possibleFaceToHit,
-                  Mat4 scale) throws IOException {
+    public Player(URL playerObj, Vec3 position, Vec3 direction, Mat4 rotation, ElevatorFace possibleFaceToHit, Mat4 scale) throws IOException {
         new ObjReader(playerObj, Options.CONVERT_TO_Z_UP).getMeshes().forEach(mesh -> this.playerObj.add(mesh));
+        Mat4 tr = Mat4.multiply(scale, rotation);
+        this.playerObj.forEach(mesh -> {
+            mesh.setTransform(tr);
+        });
+        
         this.position = position;
         this.direction = direction;
         this.rotation = rotation;
-        this.possibleFaceToHit = possibleFaceToHit;
         this.scale = scale;
+        this.possibleFaceToHit = possibleFaceToHit;
+        
         calculateBB();
+        this.playerLength = (boundingBox.getMaxY()-boundingBox.getMinY());
     }
     
     public void move(double deltaTime) {
@@ -81,18 +88,19 @@ public class Player {
     }
     
     public void changeLevel(double elevatorWidth, boolean isGoingUp) {
-        double zShift;
+        Vec3 shiftVector;
+        
         if(isGoingUp) {
-            zShift = TronController.FLOOR_HEIGHT;
+            shiftVector = new Vec3(0, elevatorWidth + playerLength, TronController.FLOOR_HEIGHT);
+            System.out.println(shiftVector);
             floorLevel++;
-        }
-        else {
-            zShift = -TronController.FLOOR_HEIGHT;
+        } else {
+            shiftVector = new Vec3(0, elevatorWidth - playerLength, -TronController.FLOOR_HEIGHT);
+            System.out.println(shiftVector);
             floorLevel--;
         }
         
-        position = position.add(new Vec3(0, elevatorWidth + (boundingBox.getMaxY()-boundingBox.getMinY()), zShift));
-
+        position = position.add(shiftVector);
         playerObj.forEach(mesh -> {
             mesh.setPosition(position);
         });
@@ -133,7 +141,9 @@ public class Player {
         
         playerCamera.setTarget(position.add(new Vec3(0, 0, 0.25)));
     }
-
+    
+    
+    /****** GETTER AND SETTER ******/
     public List<IMesh> getPlayerObj() {
         return playerObj;
     }
@@ -156,6 +166,10 @@ public class Player {
 
     public void setDestroyed(boolean isDestroyed) {
         this.isDestroyed = isDestroyed;
+    }
+    
+    public boolean isDestroyed() {
+        return isDestroyed;
     }
 
     public void setPlayerCamera(ICamera playerCamera) {

@@ -14,18 +14,21 @@ public class CollisionHandler {
     }
     
     public void detectCollisions(Player player) {
-//      boolean isOutOfMap = !bbBuilding.contains2D(bbPlayer);
+        player.setDestroyed(!bbBuilding.contains2D(player.getBoundingBox()));
         
-        handleElevatorCollision(player);
+        if(!player.isDestroyed()) {
+            handleElevatorCollision(player);
+        }
     }
     
     private void handleElevatorCollision(Player player) {
         if(bbElevator.intersects2D(player.getBoundingBox())) {            
             if(player.getPossibleFaceToHit().equals(ElevatorFace.FRONT) && player.getFloorLevel() <= 2) {
                 player.changeLevel(bbElevator.getMaxX() - bbElevator.getMinX(), true);
+                System.out.println(bbElevator.getMaxX() - bbElevator.getMinX());
             } else if(player.getPossibleFaceToHit().equals(ElevatorFace.BACK) && player.getFloorLevel() >= 1) {
-                //TODO: Going down too fast.
                 player.changeLevel((bbElevator.getMaxX() - bbElevator.getMinX()) * (-1), false);
+                System.out.println((bbElevator.getMaxX() - bbElevator.getMinX()) * (-1));
             } else {
                player.setDestroyed(true); 
             }
