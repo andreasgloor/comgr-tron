@@ -8,8 +8,8 @@ public class DoubleLinkedList<T> {
 
 	public static class Node<T> {
         private T data;
-        private Node next;
-        private Node prev;
+        private Node<?> next;
+        private Node<?> prev;
 
         public Node(T data) {
             this.data = data;
@@ -30,11 +30,11 @@ public class DoubleLinkedList<T> {
 	}
 	
 	private int length = 0; 
-	public Node first = null;
-    public Node last = null;
+	public Node<?> first = null;
+    public Node<?> last = null;
 
     public void addFirst(T data) {
-        Node newNode = new Node(data);
+        Node<?> newNode = new Node<Object>(data);
 
         if (isEmpty()) {
             newNode.next = null; 
@@ -56,7 +56,7 @@ public class DoubleLinkedList<T> {
     }
     
     public void displayList() {
-        Node current = first;
+        Node<?> current = first;
         while (current != null) {
             current.displayNode();
             current = current.next;
@@ -66,8 +66,6 @@ public class DoubleLinkedList<T> {
     
     public void removeFirst() {
         if (!isEmpty()) {
-            Node temp = first;
-
             if (first.next == null) {
                 first = null;
                 last = null;
@@ -80,8 +78,6 @@ public class DoubleLinkedList<T> {
     }
     
     public void removeLast() {
-        Node temp = last;
-
         if (!isEmpty()) {
 
             if (first.next == null) {
@@ -104,13 +100,11 @@ public class DoubleLinkedList<T> {
     
     public List<Object> getAll() {
     	List<Object> nodes = new ArrayList<Object>();
-    	Node current = first;
+    	Node<?> current = first;
         while (current != null) {
         	nodes.add(current.data);
             current = current.next;
         }
         return nodes;
     }
-
-    
 }
