@@ -9,12 +9,21 @@ public class Tail {
 	private Vec3 end;
 	private IMesh mesh = null; 
 	private BoundingBox boundingBox = null;
+	private Vec3 direction;
 	
-	public Tail(Vec3 start, Vec3 end) {
+	public Tail(Vec3 start, Vec3 end, Vec3 direction) {
 		this.setStart(start); 
 		this.setEnd(end);
+		this.setDirection(direction);
 	}
 	
+	public void setDirection(Vec3 direction) {
+		this.direction = direction;
+	}
+	
+	public Vec3 getDirection() {
+		return this.direction;
+	}
 	
 	public Vec3 getEnd() {
 		return end;

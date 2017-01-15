@@ -23,15 +23,17 @@ public class TronController extends DefaultController {
 	private final BoundingBox bbBuilding;
 	private final BoundingBox bbElevator;
 	private final CollisionHandler collisionHandler;
+	private final List<BonusItem> bonusItems;
 	
 	private boolean fixCameraPos = false;
     private double time_last = 0;
 	
-	public TronController(List<Player> players, BoundingBox bbBuilding, BoundingBox bbElevator) {
+	public TronController(List<Player> players, BoundingBox bbBuilding, BoundingBox bbElevator, List<BonusItem> bonusItems) {
 	    this.players = players;
 	    this.bbBuilding = bbBuilding;
 	    this.bbElevator = bbElevator;
-		this.collisionHandler = new CollisionHandler(bbBuilding, bbElevator);
+		this.collisionHandler = new CollisionHandler(bbBuilding, bbElevator, bonusItems, players);
+		this.bonusItems = bonusItems;
 	}
 
     @Override
@@ -90,10 +92,12 @@ public class TronController extends DefaultController {
 		time_last = time;
 
 		players.forEach(player -> player.move(dt, bbBuilding, bbElevator));
-		collisionHandler.detectPlayerCollisions(players);
-		collisionHandler.detectTailCollisions(players);
+		collisionHandler.detectPlayerCollisions();
+		collisionHandler.detectTailCollisions();
+		collisionHandler.detectBonusItemCollisions();
 	    players.forEach(player -> collisionHandler.detectSceneCollisions(player));
-		
 	    players.forEach(player -> player.CalculateFalconTail());
+	    
+	    bonusItems.forEach(item -> item.animate());
 	}	
 }

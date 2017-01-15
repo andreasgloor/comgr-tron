@@ -1,24 +1,25 @@
 package tron;
 
-import java.util.ArrayList;
 import java.util.List;
-
 import ch.fhnw.util.math.Vec3;
 import ch.fhnw.util.math.geometry.BoundingBox;
-import tron.helper.DoubleLinkedList.Node;
 import tron.helper.ElevatorFace;
 
 public class CollisionHandler {
     
     private final BoundingBox bbBuilding;
     private final BoundingBox bbElevator;
+    private final List<Player> players;
+    private final List<BonusItem> bonusItems;
     
-    public CollisionHandler(BoundingBox bbBuilding, BoundingBox bbElevator) {
+    public CollisionHandler(BoundingBox bbBuilding, BoundingBox bbElevator, List<BonusItem> bonusItems, List<Player> players) {
         this.bbBuilding = bbBuilding;
         this.bbElevator = bbElevator;
+        this.players = players;
+        this.bonusItems = bonusItems;
     }
     
-    public void detectPlayerCollisions(List<Player> players) {     
+    public void detectPlayerCollisions() {     
         for (int i = 0; i < players.size(); i++) {
             for (int j = i + 1; j < players.size(); j++) {
                 if(players.get(i).getBoundingBox().intersects2D(players.get(j).getBoundingBox())) {
@@ -29,17 +30,7 @@ public class CollisionHandler {
         }
     }
     
-    public void detectTailCollisions(List<Player> players) {
-    	// Get BoundingBoxes
-    	/* List<BoundingBox> tailBoundingBoxes = new ArrayList<BoundingBox>();  	
-    	for (int i = 0; i < players.size(); i++) {
-    		List<Object> nodes = players.get(i).tail.getAll();
-    		for(int j = 0; j < nodes.size(); j++) {
-    			tailBoundingBoxes.add(((Tail)nodes.get(j)).getBoundingBox());
-    		}
-    	} */
-    	
-    	
+    public void detectTailCollisions() {
     	// Detect Collision 
     	for (int i = 0; i < players.size(); i++) {
     		
@@ -49,19 +40,34 @@ public class CollisionHandler {
     			for(int x = 0; x < boundingBoxes.size(); x++) {
     				if(players.get(i).getBoundingBox().intersects2D(boundingBoxes.get(x))){
         				players.get(i).setDestroyed(true);
+        				System.out.println("Tail Collision");
         			}
     			}
     			
     		} 
-
-    		
-    		/*for(int j = 0; j < tailBoundingBoxes.size(); j++) {
-    			if(players.get(i).getBoundingBox().intersects2D(tailBoundingBoxes.get(j))){
-    				players.get(i).setDestroyed(true);
-    			}
-    		}*/
     	}
-    	
+    }
+    
+    public void detectBonusItemCollisions() {
+    	for (int i = 0; i < players.size(); i++) {
+    		for(int j = 0; j < bonusItems.size(); j++) {
+    			if(players.get(i).getBoundingBox().intersects2D(bonusItems.get(j).getBoundingBox())) {
+    				BonusItem item = bonusItems.get(j);
+    				Player player = players.get(i);
+    				switch (item.getType()) {
+    					case RemoveTail:
+    						player.removeTail();
+    						break;
+    					case ExtendTail:
+    						player.extendTailSize();
+    						break;
+    					case ShrinkTail:
+    						player.shrinkTailSize();
+    						break;
+    				}
+    			}
+    		}
+    	}
     }
     
     public void detectSceneCollisions(Player player) {

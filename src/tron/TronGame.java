@@ -19,6 +19,7 @@ import ch.fhnw.util.color.RGBA;
 import ch.fhnw.util.math.Mat4;
 import ch.fhnw.util.math.Vec3;
 import ch.fhnw.util.math.geometry.BoundingBox;
+import tron.BonusItem.Type;
 import tron.helper.ElevatorFace;
 
 public class TronGame {	
@@ -33,6 +34,7 @@ public class TronGame {
 		final List<IMesh> building = new ArrayList<>();
 		final List<IMesh> elevator = new ArrayList<>();
 		final List<Player> players = new ArrayList<>();
+		final List<BonusItem> bonusItems = new ArrayList<>();
 		
 		try {
 		    Player player1 = new Player(
@@ -57,7 +59,11 @@ public class TronGame {
 		    
 		    players.add(player1);
 		    players.add(player2);
-						
+		    
+		    bonusItems.add(new BonusItem(new Vec3(5,4,0), RGBA.GREEN, Type.ExtendTail));
+		    bonusItems.add(new BonusItem(new Vec3(-3,-2,0), RGBA.YELLOW, Type.ShrinkTail));
+		    bonusItems.add(new BonusItem(new Vec3(-10,-2,0), RGBA.RED, Type.RemoveTail));
+			
 			final URL objBuilding = getClass().getResource("/models/building.obj");
 			new ObjReader(objBuilding, Options.CONVERT_TO_Z_UP).getMeshes().forEach(mesh -> building.add(mesh));
 			
@@ -69,7 +75,7 @@ public class TronGame {
 		
 		final BoundingBox bbBuilding = getBoundingBoxOfObj(building);
         final BoundingBox bbElevator = getBoundingBoxOfObj(elevator);		
-        controller = new TronController(players, bbBuilding, bbElevator);
+        controller = new TronController(players, bbBuilding, bbElevator, bonusItems);
 		
 		controller.run(time -> {
 			new DefaultView(controller, 0, 40, 1200, 460, IView.INTERACTIVE_VIEW, "TronGame");
@@ -94,6 +100,9 @@ public class TronGame {
 			
 			scene.add3DObjects(building);
 			scene.add3DObjects(elevator);
+			
+			bonusItems.forEach(item -> scene.add3DObject(item.getMesh()));
+			
 			players.forEach(player -> scene.add3DObjects(player.getPlayerObj()));
 			
 			for(int i = 0; i < players.size(); i++) {
@@ -106,9 +115,10 @@ public class TronGame {
 		        controller.animationTick(time, interval);
 		});
 		
+		
 		Platform.get().run();
 	}
-	
+
 	private BoundingBox getBoundingBoxOfObj(List<IMesh> obj) {
 	    BoundingBox bb = new BoundingBox();
 	    

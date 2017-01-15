@@ -1,10 +1,8 @@
 package tron.helper;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-import tron.Tail;
 
 public class DoubleLinkedList<T> {
 
@@ -77,7 +75,6 @@ public class DoubleLinkedList<T> {
                 first = first.next;
                 first.prev = null;
             }
-            // System.out.println(temp.toString() + " is popped from the list");
             length--;
         }
     }
@@ -95,7 +92,6 @@ public class DoubleLinkedList<T> {
                 last.next = null;
             }
         }
-        //System.out.println(temp.toString() + " is popped from the list"); // ...was removed from...
         length--; 
     }
 
@@ -115,5 +111,6 @@ public class DoubleLinkedList<T> {
         }
         return nodes;
     }
+
     
 }

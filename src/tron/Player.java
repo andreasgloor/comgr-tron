@@ -41,6 +41,7 @@ public class Player {
     private boolean hasLevelChanged = false;
     private boolean camIsFixed = false;
     private int ticksToIgnoreCamMove = 0;
+    private int tailSize = 10; 
     
     private RGBA beamColor; 
     public DoubleLinkedList<Tail> tail;
@@ -161,8 +162,11 @@ public class Player {
     
     public void CalculateFalconTail() {
     	if(hasTurned || hasLevelChanged || tail.isEmpty()) {
-			// Create new Tail 
-			tail.addFirst(new Tail(position, position));
+    		System.out.println("level changed --> new tail" + position);
+			Vec3 start = position;
+    		if (!tail.isEmpty())
+    			start = ((Tail)tail.getFirst()).getEnd();
+			tail.addFirst(new Tail(start, position, direction));
 		} else {
 			  Tail currentTail = (Tail) tail.getFirst();
 			  currentTail.setEnd(position);
@@ -173,16 +177,10 @@ public class Player {
     	if(hasLevelChanged) hasLevelChanged = false;
 
 		// Resize Tail at the End
-    	// TODO: Change function
-		/* Tail lastTail = (Tail) tail.getLast();
-		Vec3 tailDistance = lastTail.getStart().subtract(lastTail.getEnd());
-		if((tailDistance.x == 0 && tailDistance.y < 40 && tail.Length() > 1) || (tailDistance.y == 0 && tailDistance.x < 40 && tail.Length() > 1)) {
-			tail.removeLast();
-			System.out.println("remove");
-		} else {
-			Vec3 dist = new Vec3(tailDistance.x*0.8,tailDistance.y*0.8, tailDistance.z*0.8);
-			lastTail.setStart(lastTail.getEnd().add(dist));
-		}*/
+    	if (tail.Length() > tailSize) {
+    		TronGame.controller.getScene().remove3DObject(((Tail)tail.getLast()).getMesh());
+	    	tail.removeLast();
+    	}
 
 		RepaintTail();
     }
@@ -214,15 +212,6 @@ public class Player {
 			beam.setPosition(new Vec3(first.getEnd().x - (dist.x/2)*direction.x, first.getEnd().y- (dist.y/2)*direction.y, first.getEnd().z));
 			first.updateBoundingBox();
 		}
-
-		// Last Tail
-		if(tail.Length() > 1) {
-			Tail last = (Tail)tail.getLast();
-			// Todo: repaint last tail
-			// last.getStart(),last.getEnd();
-		}
-		
-		
 	}
 
     /****** GETTER AND SETTER ******/
@@ -290,6 +279,26 @@ public class Player {
 		}
 		return boundingBoxes;
     }
-	
     
+    public void setTailSize(int size) {
+    	this.tailSize = size;
+    }
+    
+    public void shrinkTailSize() {
+    	if(tailSize > 4) 
+    		this.tailSize--;
+    }
+    
+    public void extendTailSize() {
+    	this.tailSize++;
+    }
+    public void removeTail() {
+    	// TODO: Cleanup Objects and clear List
+    	List<Object> tails = this.tail.getAll();
+    	this.tail = new DoubleLinkedList<Tail>();
+    	for(int i = 0; i < tails.size(); i++) {
+    		TronGame.controller.getScene().remove3DObject(((Tail)tails.get(i)).getMesh());
+    	}
+    	
+    }
 }
