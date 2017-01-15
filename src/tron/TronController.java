@@ -91,6 +91,7 @@ public class TronController extends DefaultController {
 
 		players.forEach(player -> player.move(dt, bbBuilding, bbElevator));
 		collisionHandler.detectPlayerCollisions(players);
+		collisionHandler.detectTailCollisions(players);
 	    players.forEach(player -> collisionHandler.detectSceneCollisions(player));
 		
 	    players.forEach(player -> player.CalculateFalconTail());

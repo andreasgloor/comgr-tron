@@ -1,8 +1,14 @@
 package tron.helper;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import tron.Tail;
+
 public class DoubleLinkedList<T> {
 
-	private static class Node<T> {
+	public static class Node<T> {
         private T data;
         private Node next;
         private Node prev;
@@ -98,6 +104,16 @@ public class DoubleLinkedList<T> {
     }
     public Object getFirst() {
     	return first.data;
+    }
+    
+    public List<Object> getAll() {
+    	List<Object> nodes = new ArrayList<Object>();
+    	Node current = first;
+        while (current != null) {
+        	nodes.add(current.data);
+            current = current.next;
+        }
+        return nodes;
     }
     
 }

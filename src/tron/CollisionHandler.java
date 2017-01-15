@@ -1,9 +1,11 @@
 package tron;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ch.fhnw.util.math.Vec3;
 import ch.fhnw.util.math.geometry.BoundingBox;
+import tron.helper.DoubleLinkedList.Node;
 import tron.helper.ElevatorFace;
 
 public class CollisionHandler {
@@ -25,6 +27,41 @@ public class CollisionHandler {
                 }                
             }
         }
+    }
+    
+    public void detectTailCollisions(List<Player> players) {
+    	// Get BoundingBoxes
+    	/* List<BoundingBox> tailBoundingBoxes = new ArrayList<BoundingBox>();  	
+    	for (int i = 0; i < players.size(); i++) {
+    		List<Object> nodes = players.get(i).tail.getAll();
+    		for(int j = 0; j < nodes.size(); j++) {
+    			tailBoundingBoxes.add(((Tail)nodes.get(j)).getBoundingBox());
+    		}
+    	} */
+    	
+    	
+    	// Detect Collision 
+    	for (int i = 0; i < players.size(); i++) {
+    		
+    		for(int j = 0; j < players.size(); j++) {
+    			if (j == i) continue;
+    			List<BoundingBox> boundingBoxes = players.get(j).getTailBoundingBoxes();
+    			for(int x = 0; x < boundingBoxes.size(); x++) {
+    				if(players.get(i).getBoundingBox().intersects2D(boundingBoxes.get(x))){
+        				players.get(i).setDestroyed(true);
+        			}
+    			}
+    			
+    		} 
+
+    		
+    		/*for(int j = 0; j < tailBoundingBoxes.size(); j++) {
+    			if(players.get(i).getBoundingBox().intersects2D(tailBoundingBoxes.get(j))){
+    				players.get(i).setDestroyed(true);
+    			}
+    		}*/
+    	}
+    	
     }
     
     public void detectSceneCollisions(Player player) {

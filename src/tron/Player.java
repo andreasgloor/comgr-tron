@@ -38,6 +38,7 @@ public class Player {
     
     private ICamera playerCamera;
     private boolean hasTurned = false;
+    private boolean hasLevelChanged = false;
     private boolean camIsFixed = false;
     private int ticksToIgnoreCamMove = 0;
     
@@ -122,6 +123,7 @@ public class Player {
         });
         
         ticksToIgnoreCamMove = 0;
+        hasLevelChanged = true;
     }
     
     private void calculateBB() {
@@ -135,8 +137,8 @@ public class Player {
     }
     
     private void updateCamera(BoundingBox bbBuilding, BoundingBox bbElevator) {
-        if(hasTurned) {
-            hasTurned = false;
+       if(hasTurned) {
+            //hasTurned = false;
             ticksToIgnoreCamMove = 25;
         }
         
@@ -157,54 +159,70 @@ public class Player {
         playerCamera.setTarget(position.add(new Vec3(0, 0, 0.25)));
     }
     
-    
-    private boolean hasLevelChanged = false;
     public void CalculateFalconTail() {
-    	if(hasTurned() || hasLevelChanged || tail.isEmpty()) {
+    	if(hasTurned || hasLevelChanged || tail.isEmpty()) {
 			// Create new Tail 
 			tail.addFirst(new Tail(position, position));
 		} else {
 			  Tail currentTail = (Tail) tail.getFirst();
 			  currentTail.setEnd(position);
 		}
-		
+    	
+    	/* reset flags */
+    	if(hasTurned) hasTurned = false;
+    	if(hasLevelChanged) hasLevelChanged = false;
+
 		// Resize Tail at the End
-		Tail lastTail = (Tail) tail.getLast();
+    	// TODO: Change function
+		/* Tail lastTail = (Tail) tail.getLast();
 		Vec3 tailDistance = lastTail.getStart().subtract(lastTail.getEnd());
 		if((tailDistance.x == 0 && tailDistance.y < 40 && tail.Length() > 1) || (tailDistance.y == 0 && tailDistance.x < 40 && tail.Length() > 1)) {
 			tail.removeLast();
+			System.out.println("remove");
 		} else {
 			Vec3 dist = new Vec3(tailDistance.x*0.8,tailDistance.y*0.8, tailDistance.z*0.8);
 			lastTail.setStart(lastTail.getEnd().add(dist));
-		}
+		}*/
 
 		RepaintTail();
     }
     
+    private final URL falconbeam = getClass().getResource("/models/beam.obj");
+    private Vec3 beamSize = null;
 	private void RepaintTail() {
-		if(tail.Length() == 1) {
-			Tail t = (Tail)tail.getFirst();
-			PaintTail(t.getStart(),t.getEnd());
-
+		// First Tail
+		Tail first = (Tail)tail.getFirst();
+		IMesh beam = null;
+		if (first.getMesh() == null) {
+			try {
+				beam = new ObjReader(falconbeam, Options.CONVERT_TO_Z_UP).getMeshes(new ColorMaterial(getBeamColor())).get(0);
+				beamSize = beam.getBounds().getMax().subtract(beam.getBounds().getMin());
+				beam.setPosition(new Vec3(first.getStart().x,first.getStart().y,0));	
+				first.setMesh(beam);
+				TronGame.controller.getScene().add3DObjects(first.getMesh());
+			} catch (IOException e) { 
+				// Ignore 
+			}
 		} else {
-			//System.out.println("move falcon" );
+			beam = first.getMesh();
+
+			Vec3 diff = first.getEnd().subtract(first.getStart());
+			float distance = first.getStart().distance(first.getEnd());
+			Vec3 factors = new Vec3(distance/beamSize.x,distance/beamSize.y,1);
+			beam.setTransform(Mat4.scale(0.01f + factors.x*(diff.x/distance), 0.01f + (diff.y/distance)*factors.y,1));
+	      	Vec3 dist = beam.getBounds().getMax().subtract(beam.getBounds().getMin());
+			beam.setPosition(new Vec3(first.getEnd().x - (dist.x/2)*direction.x, first.getEnd().y- (dist.y/2)*direction.y, first.getEnd().z));
+			first.updateBoundingBox();
 		}
-	}
-	
-	
-	private void PaintTail(Vec3 start, Vec3 end) {
-		List<IMesh> beam = new ArrayList<>();
-		final URL beamblue = getClass().getResource("/models/beam.obj");
-        try {
-			new ObjReader(beamblue, Options.CONVERT_TO_Z_UP).getMeshes(new ColorMaterial(getBeamColor())).forEach(mesh -> beam.add(mesh));
-		} catch (IOException e) {
-			// ignore
+
+		// Last Tail
+		if(tail.Length() > 1) {
+			Tail last = (Tail)tail.getLast();
+			// Todo: repaint last tail
+			// last.getStart(),last.getEnd();
 		}
 		
-        TronGame.controller.getScene().add3DObjects(beam);
 		
-		beam.forEach(mesh -> mesh.setTransform(Mat4.scale(10, 10, 1)));
-		beam.forEach(mesh -> mesh.setPosition(new Vec3(start.x,start.y,0)));	
 	}
 
     /****** GETTER AND SETTER ******/
@@ -263,4 +281,15 @@ public class Player {
     public RGBA getBeamColor() {
     	return this.beamColor;
     }
+    
+    public List<BoundingBox> getTailBoundingBoxes(){
+    	List<BoundingBox> boundingBoxes = new ArrayList<BoundingBox>();
+		List<Object> nodes = tail.getAll();
+		for(int j = 0; j < nodes.size(); j++) {
+			boundingBoxes.add(((Tail)nodes.get(j)).getBoundingBox());
+		}
+		return boundingBoxes;
+    }
+	
+    
 }
