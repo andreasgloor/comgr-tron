@@ -40,7 +40,6 @@ public class CollisionHandler {
     			for(int x = 0; x < boundingBoxes.size(); x++) {
     				if(players.get(i).getBoundingBox().intersects(boundingBoxes.get(x))){
         				players.get(i).setDestroyed(true);
-        				System.out.println("Tail Collision");
         			}
     			}
     			

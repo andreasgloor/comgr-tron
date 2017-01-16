@@ -162,7 +162,6 @@ public class Player {
     
     public void CalculateFalconTail() {
     	if(hasTurned || hasLevelChanged || tail.isEmpty()) {
-    		System.out.println("level changed --> new tail" + position);
 			Vec3 start = position;
     		if (!tail.isEmpty())
     			start = ((Tail)tail.getFirst()).getEnd();
@@ -293,7 +292,6 @@ public class Player {
     	this.tailSize++;
     }
     public void removeTail() {
-    	// TODO: Cleanup Objects and clear List
     	List<Object> tails = this.tail.getAll();
     	this.tail = new DoubleLinkedList<Tail>();
     	for(int i = 0; i < tails.size(); i++) {
